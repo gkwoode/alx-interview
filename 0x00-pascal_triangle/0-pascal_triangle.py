@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 """Pascal Triangle Script"""
 
+
 def pascal_triangle(n):
     triangle = []
-    
+
     if n <= 0:
         return triangle
     for i in range(n):
@@ -15,5 +16,5 @@ def pascal_triangle(n):
             else:
                 temp_list.append(triangle[i-1][j-1] + triangle[i-1][j])
         triangle.append(temp_list)
-    
+
     return triangle
