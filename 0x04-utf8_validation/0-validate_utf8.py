@@ -3,16 +3,8 @@
 
 
 def validUTF8(data):
-    """
-    Check that a sequence of byte values follows the UTF-8 encoding
-    rules.  Does not check for canonicalization (i.e. overlong encodings
-    are acceptable).
-    """
-
     # Helper function to check if a number has the '10' prefix
     def is_10_prefix(num):
-	"""Prefix"""
-
         return (num & 0b11000000) == 0b10000000
 
     # Number of bytes remaining for the current character
