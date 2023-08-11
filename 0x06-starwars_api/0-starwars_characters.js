@@ -13,8 +13,7 @@ const getCharacters = async (movieId) => {
       } else {
         try {
           const data = JSON.parse(body);
-        // resolve(data.characters.map((character) => character.name));
-	  resolve(data.characters.map((character) => {
+          resolve(data.characters.map((character) => {
             const characterId = character.split('/').slice(-2, -1)[0];
             return `https://swapi-api.alx-tools.com/api/people/${characterId}/`;
           }));
@@ -31,7 +30,7 @@ const main = async () => {
     const characters = await getCharacters(movieId);
     for (const character of characters) {
       request.get(character, (error, response, body) => {
-	if(!error){
+	if (!error) {
 	  const characterData = JSON.parse(body);
           console.log(characterData.name);
 	}
