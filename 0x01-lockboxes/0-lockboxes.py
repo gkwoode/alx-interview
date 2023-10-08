@@ -1,20 +1,29 @@
-#!/usr/bin/env/python3
+#!/usr/bin/python3
+"""Lock boxes code"""
 
-from collections import deque
 
 def canUnlockAll(boxes):
-    num_boxes = len(boxes)
-    visited = set()
-    queue = deque([0])  # Start with the first box (index 0)
+    """Lock boxes function"""
 
-    while queue:
-        box = queue.popleft()
-        visited.add(box)
+    if not boxes:
+        return False
 
-        # Check all the keys in the current box
-        for key in boxes[box]:
-            if key not in visited and key < num_boxes:
-                queue.append(key)
+    # Create a list to track the state of each box (locked or unlocked)
+    # Initialize all boxes as locked (False)
+    unlocked_boxes = [False] * len(boxes)
+    unlocked_boxes[0] = True  # The first box is initially unlocked
 
-    # Check if all boxes have been visited
-    return len(visited) == num_boxes
+    # Create a list to store the keys found
+    keys = [0]  # Start with the keys in the first box
+
+    # Use a while loop to explore and unlock boxes
+    while keys:
+        current_box = keys.pop()  # Get the current box
+        for key in boxes[current_box]:
+
+            if key >= 0 and key < len(boxes) and not unlocked_boxes[key]:
+                unlocked_boxes[key] = True  # Unlock the box
+                keys.append(key)
+
+    # Check if all boxes are unlocked
+    return all(unlocked_boxes)
