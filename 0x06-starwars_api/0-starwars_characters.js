@@ -1,44 +1,58 @@
 #!/usr/bin/node
 
 const request = require('request');
-const movieId = process.argv[2];
-const baseUrl = 'https://swapi-api.alx-tools.com/api/films/';
 
-const getCharacters = async (movieId) => {
-  const url = baseUrl + movieId;
+if (process.argv.length !== 3) {
+  console.error('Usage: ./starwars_characters.js <Movie ID>');
+  process.exit(1);
+}
+
+const movieId = process.argv[2];
+
+const apiUrl = `https://swapi-api.alx-tools.com/films/${movieId}/`;
+
+request(apiUrl, (error, response, body) => {
+  if (error) {
+    console.error('Error:', error);
+    process.exit(1);
+  }
+
+  if (response.statusCode !== 200) {
+    console.error(`Request failed with status code ${response.statusCode}`);
+    process.exit(1);
+  }
+
+  const filmData = JSON.parse(body);
+  if (!filmData.characters || !Array.isArray(filmData.characters)) {
+    console.error('Invalid response from the API');
+    process.exit(1);
+  }
+
+  // Fetch character names
+  const characterUrls = filmData.characters;
+  Promise.all(characterUrls.map(url => fetchCharacterName(url)))
+    .then(characterNames => {
+      console.log('Characters in the movie:');
+      characterNames.forEach(name => console.log(name));
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      process.exit(1);
+    });
+});
+
+function fetchCharacterName(url) {
   return new Promise((resolve, reject) => {
-    request.get(url, (error, response, body) => {
+    request(url, (error, response, body) => {
       if (error) {
         reject(error);
+      } else if (response.statusCode !== 200) {
+        reject(`Request failed with status code ${response.statusCode}`);
       } else {
-        try {
-          const data = JSON.parse(body);
-          resolve(data.characters.map((character) => {
-            const characterId = character.split('/').slice(-2, -1)[0];
-            return `https://swapi-api.alx-tools.com/api/people/${characterId}/`;
-          }));
-        } catch (parseError) {
-          reject(parseError);
-        }
+        const characterData = JSON.parse(body);
+        resolve(characterData.name);
       }
     });
   });
-};
+}
 
-const main = async () => {
-  try {
-    const characters = await getCharacters(movieId);
-    for (const character of characters) {
-      request.get(character, (error, response, body) => {
-	if (!error) {
-	  const characterData = JSON.parse(body);
-          console.log(characterData.name);
-	}
-      }
-    )}
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
-};
-
-main();
