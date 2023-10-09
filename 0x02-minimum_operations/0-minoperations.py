@@ -1,20 +1,20 @@
+#!/usr/bin/python3
+"""Minimum Operation"""
+
+
 def minOperations(n):
-    if n == 1:
+    """Minimun operation function"""
+
+    if n <= 1:
         return 0
 
     operations = 0
-    clipboard = 1
-    h_count = 1
+    factor = 2  # Start with copying one character
 
-    while h_count < n:
-        # If we can double the existing 'H's in the file
-        if n % h_count == 0:
-            operations += 1
-            clipboard = h_count
-            h_count *= 2
-        else:
-            # Paste the current clipboard content
-            operations += 1
-            h_count += clipboard
+    while n > 1:
+        while n % factor == 0:
+            n //= factor
+            operations += factor
+        factor += 1
 
     return operations
