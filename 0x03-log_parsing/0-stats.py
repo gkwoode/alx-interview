@@ -1,45 +1,56 @@
 #!/usr/bin/python3
-""" Write a script that reads stdin line by line and computes metrics: """
+"""Log Parsing"""
 
-import signal
 import sys
 
-def print_statistics(status_counts, total_size):
-    print("Total file size: File size:", total_size)
+
+def print_statistics(total_size, status_counts):
+    """Print statistics"""
+
+    print("Total file size:", total_size)
     for status_code in sorted(status_counts.keys()):
         print(f"{status_code}: {status_counts[status_code]}")
 
-def parse_line(line):
-    try:
-        parts = line.split()
-        ip_address = parts[0]
-        date = parts[3][1:] + " " + parts[4][:-1]
-        status_code = int(parts[-2])
-        file_size = int(parts[-1])
-        return ip_address, date, status_code, file_size
-    except (IndexError, ValueError):
-        return None
+
+def process_log_line(line, total_size, status_counts):
+    """Process  log line"""
+
+    parts = line.split()
+    if len(parts) >= 9:
+        status_code = parts[8]
+        if status_code.isdigit():
+            status_code = int(status_code)
+            if status_code in [200, 301, 400, 401, 403, 404, 405, 500]:
+                total_size += int(parts[9])
+                if status_code in status_counts:
+                    status_counts[status_code] += 1
+                else:
+                    status_counts[status_code] = 1
+    return total_size, status_counts
+
 
 def main():
-    status_counts = {}
+    """Main function"""
+
     total_size = 0
-    line_count = 0
+    status_counts = {}
 
     try:
+        line_count = 0
         for line in sys.stdin:
             line = line.strip()
-            data = parse_line(line)
-            if data is not None:
-                _, _, status_code, file_size = data
-                total_size += file_size
-                status_counts[status_code] = status_counts.get(status_code, 0) + 1
-                line_count += 1
+            total_size, status_counts = process_log_line(
+                    line, total_size, status_counts)
+            line_count += 1
 
-                if line_count % 10 == 0:
-                    print_statistics(status_counts, total_size)
+            if line_count % 10 == 0:
+                print_statistics(total_size, status_counts)
+
     except KeyboardInterrupt:
-        print_statistics(status_counts, total_size)
+        # Handle KeyboardInterrupt (CTRL + C)
+        print_statistics(total_size, status_counts)
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
