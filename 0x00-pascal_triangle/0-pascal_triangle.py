@@ -3,18 +3,20 @@
 
 
 def pascal_triangle(n):
-    triangle = []
+    """Pascal triangle function"""
 
     if n <= 0:
-        return triangle
-    for i in range(n):
-        temp_list = []
+        return []
 
-        for j in range(i+1):
-            if j == 0 or j == i:
-                temp_list.append(1)
-            else:
-                temp_list.append(triangle[i-1][j-1] + triangle[i-1][j])
-        triangle.append(temp_list)
+    triangle = []
+
+    for i in range(n):
+        row = [1]  # The first element of each row is always 1
+        if i > 0:
+            prev_row = triangle[i - 1]
+            for j in range(1, i):
+                row.append(prev_row[j - 1] + prev_row[j])
+            row.append(1)  # The last element of each row is always 1
+        triangle.append(row)
 
     return triangle
